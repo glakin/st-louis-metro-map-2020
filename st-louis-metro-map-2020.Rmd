@@ -1,0 +1,38 @@
+---
+title: "St. Louis Metro Area Population - 2020 Census"
+author: "Jerry Lakin"
+date: "8/19/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Loading 2020 Census Data
+
+We first load the census data from our .csv file. This file contains county-level
+data including 2010 population, 2020 population and the latitude and longitude
+of each county. R interprets the population numbers as strings. We convert them 
+to numeric format in a new column, taking care to remove comma separators. 
+
+```{r load}
+df <- read.csv('stl_metro_2020_population.csv')
+
+df$pop2020 <- as.numeric(gsub(",", "", df$X2020))
+df <- subset(df, select = c(County, pop2020, Lat, Lng))
+
+```
+
+## Plotting the Population Density with Leaflet
+
+Next we will use the leaflet package to plot 2020 population data on a map of
+the St. Louis metropolitan area.
+
+```{r map, message = FALSE, warning = FALSE}
+library(leaflet)
+df %>%
+  leaflet() %>%
+  addTiles() %>%
+  addCircles(weight = 1, radius = sqrt(df$pop2020)*20, popup = df$County)
+```
